@@ -12,7 +12,7 @@ const router = createRouter({
                     component: () => import('../views/CurrenciesView.vue')
                 },
                 {
-                    path: '/about',
+                    path: '/converter',
                     name: 'converter',
                     // route level code-splitting
                     // this generates a separate chunk (About.[hash].js) for this route

@@ -8,6 +8,24 @@
   </div>
   <!-- Implement a UI that would behave like a currency converter -->
   <div>
+    <div class="flex w-full">
+      <div class="flex flex-col w-full">
+        <label for="from">From:</label>
+        <select v-model="from" id="from" >
+          <option v-for="currency in currencies" :value="currency.code">{{ currency.name }}</option>
+        </select>
+        <input class="mt-10 mb-10" v-model="amount" type='number' step='0.01' value='0.00' placeholder='0.00' />
+        <input type="date" id="start" name="currency-date"  />
+      </div>
+      <div class="flex flex-col w-full">
+        <label for="to">To:</label>
+        <select v-model="to" id="to" >
+          <option v-for="currency in currencies" :value="currency.code">{{ currency.name }}</option>
+        </select>
+      </div>
+    </div>
+
+
     <div>TO IMPLEMENT :D we got to show the rate and the amount in the new currency</div>
     <div>(Optional) also add a custom date option default is now</div>
     <div class="flex flex-row items-center justify-around">
@@ -19,9 +37,37 @@
   </div>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
+import useAxios from "@/composables/useAxios.js"
+const axios = useAxios();
 
 // TODO implement the logic to convert by calling the correct endpoint for more information check: https://fxratesapi.com/docs/endpoints/convert-currency
+let currencies = reactive([]);
+
+const convertCurrency = async () => {
+  try {
+    const response = await axios.get("/currencies");
+    return response.data;
+  } catch (error) {
+
+  }
+}
+
+const getCurrencies = async () => {
+  try {
+    const response = await axios.get("/currencies");
+    return response.data;
+  } catch (error) {
+
+  }
+}
+
+onMounted(() => {
+  getCurrencies().then((data) => {
+    currencies.push(...Object.values(data));
+  });
+})
+
 const from = ref(null)
 const to = ref(null)
 const date = ref(null)

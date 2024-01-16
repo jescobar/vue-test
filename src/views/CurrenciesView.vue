@@ -24,12 +24,18 @@
           </div>
         </div>
       </div>
-      <!-- TODO: Show a loader or a text that indicates that the view is loading while the call is done -->
-      <!-- TODO: Show a view if theere are no currencies -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-3 mt-8">
-        <CurrencyCard v-for="currency in currencies" :key="currency.code" :currency="currency" />
+
+      <div v-if="loading">...Loading
       </div>
-    </div>
+      <div v-else-if="searchResults.length == 0" >
+        No results found
+      </div>
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-3 mt-8">
+        <CurrencyCard v-for="currency in searchResults" :key="currency.code" :currency="currency" />
+      </div>
+
+
+      </div>
   </main>
 </template>
 <script setup>
@@ -39,21 +45,33 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 
 import { computed, onMounted, reactive, ref } from "vue";
 const axios = useAxios()
-const currencies = reactive([])
+let currencies = reactive([]);
 const search = ref("")
+const loading = ref(false);
 const getCurrencies = async () => {
   try {
-    const response = await axios.get("/currencies")
-    const data = response.data
-    //TODO This line contains an error fix it to show all the cards
-    // currencies.push(...data)
+    loading.value = true;
+    const response = await axios.get("/currencies");
+    return response.data;
   } catch (error) {
 
   }
 }
-//TODO implement with a computed property a filter with the search value to check if the string is the name or the code case insensitive
+
+const searchResults = computed(() => {
+  const r = currencies.filter((c) => search.value ? c.code.toLowerCase() == search.value.toLowerCase() || c.name.toLowerCase() == search.value.toLowerCase() : true);
+  return r;
+})
+
+onMounted(() => {
+  getCurrencies().then((data) => {
+    currencies.push(...Object.values(data));
+    loading.value = false;
+  });
+});
+//TODO -done implement with a computed property a filter with the search value to check if the string is the name or the code case insensitive
 
 //TODO (Extra) based on the decimal_digits group the ones with the value 2 as non crypto currencies and the ones with > 2 as crypto
 
-//TODO call the get currencies in the correct vue lifecycle 
+//TODO - done call the get currencies in the correct vue lifecycle
 </script>
